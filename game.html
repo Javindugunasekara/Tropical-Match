@@ -6,8 +6,13 @@
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
+  <header class="game-header">
+    <h1>TROPICAL MATCH</h1>
+  </header>
+
   <div class="container game-container">
     <h1 class="title">🌴 Tropical Match 🌴</h1>
+
     <div class="game-controls">
       <label>Level:</label>
       <select id="level">
@@ -19,12 +24,34 @@
     </div>
 
     <div id="board" class="board"></div>
+
     <div class="game-footer">
-      <button class="btn secondary" id="back">Back</button>
+      <a href="dashboard.html" class="btn secondary" id="back">Back</a>
       <div id="result" class="result"></div>
     </div>
   </div>
 
   <script src="assets/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Back button
+      const backBtn = document.getElementById('back');
+      backBtn.addEventListener('click', () => {
+        window.location.href = 'dashboard.html';
+      });
+
+      // Start Game button
+      const startBtn = document.getElementById('startBtn');
+      startBtn.addEventListener('click', () => {
+        // Save level and flag in localStorage
+        const level = document.getElementById('level').value;
+        localStorage.setItem('startGame', 'true');
+        localStorage.setItem('gameLevel', level);
+
+        // Redirect to gamedashboard.html
+        window.location.href = 'gamedashboard.html';
+      });
+    });
+  </script>
 </body>
 </html>

@@ -6,15 +6,53 @@
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
+  <header class="game-header">
+    <h1>TROPICAL MATCH</h1>
+  </header>
+
   <div class="container form-container">
-    <h1 class="title">Login</h1>
+    <h1 class="title">Welcome Back!</h1>
     <form id="loginForm">
-      <input type="email" id="loginEmail" placeholder="Enter your email" required>
-      <input type="password" id="loginPassword" placeholder="Enter your password" required>
+      <input type="email" id="email" placeholder="Enter your email" required>
+      <input type="password" id="password" placeholder="Enter your password" required>
       <button type="submit" class="btn primary">Login</button>
     </form>
     <p class="note">Don’t have an account? <a href="signup.html" class="link">Sign Up</a></p>
+    <p id="message" style="color:red; margin-top:10px;"></p>
   </div>
-  <script src="assets/js/app.js"></script>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const message = document.getElementById("message");
+
+      if (!email || !password) {
+        message.textContent = "Please fill in all fields.";
+        return;
+      }
+
+      try {
+        const response = await fetch("api/login.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // ✅ Redirect to dashboard after successful login
+          window.location.href = "dashboard.html";
+        } else {
+          message.textContent = data.message || "Invalid login credentials.";
+        }
+      } catch (error) {
+        message.textContent = "Server error. Please try again.";
+      }
+    });
+  </script>
 </body>
 </html>

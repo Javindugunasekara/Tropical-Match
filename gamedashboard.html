@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tropical Match - Game Dashboard</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .board {
+      display: grid;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .cell {
+      background-color: #ffeb3b;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      height: 60px;
+      user-select: none;
+      transition: background 0.3s;
+    }
+    .cell.clicked {
+      background-color: #4caf50;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header class="game-header">
+    <h1>TROPICAL MATCH - Dashboard</h1>
+  </header>
+
+  <div class="container">
+    <h1 class="title">🌴 Game Board 🌴</h1>
+    <div id="gameData">Loading game...</div>
+    <div id="board" class="board"></div>
+    <div class="game-footer">
+      <a href="dashboard.html" class="btn secondary" id="back">Back</a>
+      <div id="result" class="result"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const backBtn = document.getElementById('back');
+      backBtn.addEventListener('click', () => {
+        window.location.href = 'dashboard.html';
+      });
+
+      const startGame = localStorage.getItem('startGame');
+      if (startGame === 'true') {
+        const level = localStorage.getItem('gameLevel') || 'easy';
+        localStorage.removeItem('startGame');
+
+        // Fetch data from your server
+        fetch('http://localhost:3000/banana')
+          .then(res => res.json())
+          .then(data => {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+
+            // Number of items based on level
+            const count = level === 'easy' ? 12 : 20;
+            const items = data.slice(0, count);
+
+            // Set CSS grid columns
+            board.style.gridTemplateColumns = level === 'easy' ? 'repeat(4, 1fr)' : 'repeat(5, 1fr)';
+
+            // Create board cells
+            items.forEach(item => {
+              const cell = document.createElement('div');
+              cell.classList.add('cell');
+              cell.innerText = item;
+              cell.addEventListener('click', () => {
+                cell.classList.toggle('clicked');
+              });
+              board.appendChild(cell);
+            });
+
+            document.getElementById('gameData').innerText = 'Game loaded! Click the cells to play.';
+          })
+          .catch(err => {
+            console.error(err);
+            document.getElementById('gameData').innerText = 'Failed to load game. Try again.';
+          });
+      } else {
+        document.getElementById('gameData').innerText = 'Click "Start Game" to begin.';
+      }
+    });
+  </script>
+</body>
+</html>

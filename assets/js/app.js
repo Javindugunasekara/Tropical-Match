@@ -1,126 +1,131 @@
-// Front-end game logic + localStorage login/register
 document.addEventListener('DOMContentLoaded', () => {
-  // Registration
-  const signupForm = document.getElementById('signupForm');
-  if (signupForm) {
-    signupForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const name = document.getElementById('signupName').value;
-      const email = document.getElementById('signupEmail').value;
-      const pass = document.getElementById('signupPassword').value;
-      localStorage.setItem('user', JSON.stringify({ name, email, pass }));
-      alert('Account created successfully!');
-      window.location.href = 'login.html';
-    });
-  }
 
-  // Login
-  const loginForm = document.getElementById('loginForm');
-  if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = document.getElementById('loginEmail').value;
-      const pass = document.getElementById('loginPassword').value;
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      if (user.email === email && user.pass === pass) {
-        localStorage.setItem('loggedIn', 'true');
-        alert('Login successful!');
-        window.location.href = 'index.html';
-      } else {
-        alert('Invalid email or password!');
-      }
-    });
-  }
+  // -----------------------------
+  // READ LEVEL FROM QUERY PARAMS
+  // -----------------------------
+  const params = new URLSearchParams(window.location.search);
+  const level = params.get('level') || 'easy'; // default to easy
 
-  // Profile
-  const nameEl = document.getElementById('profileName');
-  const emailEl = document.getElementById('profileEmail');
-  if (nameEl && emailEl) {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    nameEl.textContent = user.name || 'Player';
-    emailEl.textContent = user.email || 'player@example.com';
-  }
-
-  // Game
-  const board = document.getElementById('board');
+  // START GAME
   const startBtn = document.getElementById('startBtn');
-  const timerEl = document.getElementById('timer');
-  const resultEl = document.getElementById('result');
-  const back = document.getElementById('back');
-  const levelSel = document.getElementById('level');
+  const board = document.getElementById('board');
 
-  if (board && startBtn) {
-    let first = null, second = null, lock = false;
-    let matches = 0, timeLeft = 30, interval;
+  if (startBtn && board) {
+    startBtn.addEventListener('click', async () => {
+      board.innerHTML = ''; // clear previous board
 
-    function shuffle(arr) {
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
+      try {
+        const response = await fetch('https://marcconrad.com/uob/banana/');
+        const bananas = await response.json();
+
+        const numPairs = level === 'easy' ? 6 : 12;
+        const selectedBananas = bananas.slice(0, numPairs);
+        const cards = [...selectedBananas, ...selectedBananas];
+        shuffleArray(cards);
+
+        cards.forEach(banana => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.dataset.id = banana.id;
+          card.innerHTML = `
+            <div class="card-inner">
+              <div class="card-front">❓</div>
+              <div class="card-back"><img src="${banana.url}" alt="Banana"></div>
+            </div>
+          `;
+          board.appendChild(card);
+        });
+
+        startTimer(level === 'easy' ? 30 : 60);
+        addCardFlipLogic();
+
+      } catch (err) {
+        console.error('Error fetching bananas:', err);
+        board.innerHTML = '<p>Failed to load game. Try again.</p>';
       }
-      return arr;
-    }
-
-    function makeBoard() {
-      board.innerHTML = '';
-      resultEl.textContent = '';
-      const pairs = levelSel.value === 'hard' ? 8 : 6;
-      const values = Array.from({ length: pairs }, (_, i) => i + 1).flatMap(v => [v, v]);
-      shuffle(values);
-      values.forEach(v => {
-        const el = document.createElement('div');
-        el.className = 'card-tile';
-        el.textContent = '?';
-        el.dataset.val = v;
-        el.addEventListener('click', onClick);
-        board.appendChild(el);
-      });
-      matches = 0;
-    }
-
-    function onClick(e) {
-      if (lock) return;
-      const el = e.currentTarget;
-      if (el.classList.contains('matched') || el === first) return;
-      el.textContent = el.dataset.val;
-      if (!first) { first = el; return; }
-      second = el; lock = true;
-      if (first.dataset.val === second.dataset.val) {
-        first.classList.add('matched'); second.classList.add('matched');
-        matches++;
-        first = null; second = null; lock = false;
-        if (matches === board.children.length / 2) {
-          clearInterval(interval);
-          resultEl.textContent = '🎉 You Won!';
-        }
-      } else {
-        setTimeout(() => {
-          first.textContent = '?';
-          second.textContent = '?';
-          first = null; second = null; lock = false;
-        }, 700);
-      }
-    }
-
-    function startTimer() {
-      clearInterval(interval);
-      timeLeft = 30;
-      timerEl.textContent = `⏱ ${timeLeft}s`;
-      interval = setInterval(() => {
-        timeLeft--;
-        timerEl.textContent = `⏱ ${timeLeft}s`;
-        if (timeLeft <= 0) {
-          clearInterval(interval);
-          resultEl.textContent = '⏰ Time Up!';
-        }
-      }, 1000);
-    }
-
-    startBtn.addEventListener('click', () => {
-      makeBoard();
-      startTimer();
     });
-
-    back.addEventListener('click', () => window.location.href = 'index.html');
   }
+
+  // BACK BUTTON
+  const backBtn = document.getElementById('back');
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      board.innerHTML = '';
+      const timerEl = document.getElementById('timer');
+      if (timerEl) timerEl.textContent = '';
+      window.location.href = 'gamedashboard.html?level=' + level;
+    });
+  }
+
+  // -----------------------------
+  // SHUFFLE FUNCTION
+  // -----------------------------
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+
+  // -----------------------------
+  // TIMER FUNCTION
+  // -----------------------------
+  function startTimer(seconds) {
+    const timerEl = document.getElementById('timer');
+    if (!timerEl) return;
+
+    let timeLeft = seconds;
+    timerEl.textContent = `⏱ ${timeLeft}s`;
+
+    const timerInterval = setInterval(() => {
+      timeLeft--;
+      timerEl.textContent = `⏱ ${timeLeft}s`;
+
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        alert('Time’s up!');
+      }
+    }, 1000);
+  }
+
+  // -----------------------------
+  // FLIP & MATCH LOGIC
+  // -----------------------------
+  function addCardFlipLogic() {
+    const cards = document.querySelectorAll('.card');
+    let firstCard = null;
+    let secondCard = null;
+    let lockBoard = false;
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        if (lockBoard || card === firstCard) return;
+
+        card.classList.add('flip');
+
+        if (!firstCard) {
+          firstCard = card;
+          return;
+        }
+
+        secondCard = card;
+        lockBoard = true;
+
+        if (firstCard.dataset.id === secondCard.dataset.id) {
+          firstCard = null;
+          secondCard = null;
+          lockBoard = false;
+        } else {
+          setTimeout(() => {
+            firstCard.classList.remove('flip');
+            secondCard.classList.remove('flip');
+            firstCard = null;
+            secondCard = null;
+            lockBoard = false;
+          }, 1000);
+        }
+      });
+    });
+  }
+
 });

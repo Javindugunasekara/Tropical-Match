@@ -44,52 +44,46 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const backBtn = document.getElementById('back');
-      backBtn.addEventListener('click', () => {
-        window.location.href = 'dashboard.html';
-      });
+document.addEventListener('DOMContentLoaded', () => {
+  const backBtn = document.getElementById('back');
+  backBtn.addEventListener('click', () => {
+    window.location.href = 'dashboard.html';
+  });
 
-      const startGame = localStorage.getItem('startGame');
-      if (startGame === 'true') {
-        const level = localStorage.getItem('gameLevel') || 'easy';
-        localStorage.removeItem('startGame');
+  const startGame = localStorage.getItem('startGame');
+  const board = document.getElementById('board');
+  const gameDataDiv = document.getElementById('gameData');
 
-        // Fetch data from your server
-        fetch('http://localhost:3000/banana')
-          .then(res => res.json())
-          .then(data => {
-            const board = document.getElementById('board');
-            board.innerHTML = '';
+  if (startGame === 'true') {
+    const data = JSON.parse(localStorage.getItem('bananaGameData'));
+    localStorage.removeItem('startGame');
 
-            // Number of items based on level
-            const count = level === 'easy' ? 12 : 20;
-            const items = data.slice(0, count);
+    if (!data || !data.question) {
+      gameDataDiv.innerText = 'No game data found.';
+      return;
+    }
 
-            // Set CSS grid columns
-            board.style.gridTemplateColumns = level === 'easy' ? 'repeat(4, 1fr)' : 'repeat(5, 1fr)';
+    // Display the image from API
+    const img = document.createElement('img');
+    img.src = data.question;
+    img.alt = 'Banana Puzzle';
+    img.style.maxWidth = '300px';
+    img.style.display = 'block';
+    img.style.margin = '20px auto';
+    board.appendChild(img);
 
-            // Create board cells
-            items.forEach(item => {
-              const cell = document.createElement('div');
-              cell.classList.add('cell');
-              cell.innerText = item;
-              cell.addEventListener('click', () => {
-                cell.classList.toggle('clicked');
-              });
-              board.appendChild(cell);
-            });
+    // Display question text
+    const info = document.createElement('p');
+    info.innerText = 'Solve the puzzle or match the pattern!';
+    info.style.textAlign = 'center';
+    board.appendChild(info);
 
-            document.getElementById('gameData').innerText = 'Game loaded! Click the cells to play.';
-          })
-          .catch(err => {
-            console.error(err);
-            document.getElementById('gameData').innerText = 'Failed to load game. Try again.';
-          });
-      } else {
-        document.getElementById('gameData').innerText = 'Click "Start Game" to begin.';
-      }
-    });
-  </script>
+    gameDataDiv.innerText = 'Game loaded successfully!';
+  } else {
+    gameDataDiv.innerText = 'Click "Start Game" to begin.';
+  }
+});
+</script>
+
 </body>
 </html>

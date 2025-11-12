@@ -31,27 +31,31 @@
     </div>
   </div>
 
-  <script src="assets/js/app.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Back button
-      const backBtn = document.getElementById('back');
-      backBtn.addEventListener('click', () => {
-        window.location.href = 'dashboard.html';
-      });
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const startBtn = document.getElementById('startBtn');
 
-      // Start Game button
-      const startBtn = document.getElementById('startBtn');
-      startBtn.addEventListener('click', () => {
-        // Save level and flag in localStorage
-        const level = document.getElementById('level').value;
-        localStorage.setItem('startGame', 'true');
-        localStorage.setItem('gameLevel', level);
+  startBtn.addEventListener('click', async () => {
+    try {
+      // Fetch API data
+      const response = await fetch('https://marcconrad.com/uob/banana/api.php');
+      if (!response.ok) throw new Error('Failed to load API');
 
-        // Redirect to gamedashboard.html
-        window.location.href = 'gamedashboard.html';
-      });
-    });
-  </script>
+      const data = await response.json();
+
+      // Save data to localStorage
+      localStorage.setItem('bananaGameData', JSON.stringify(data));
+      localStorage.setItem('startGame', 'true');
+
+      // Redirect to game dashboard
+      window.location.href = 'gamedashboard.html';
+    } catch (error) {
+      alert('Failed to load game. Try again.');
+      console.error(error);
+    }
+  });
+});
+</script>
+
 </body>
 </html>

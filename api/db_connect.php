@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$dbname = "tropical_match"; // ✅ change this to your real DB name
+$dbname = "tropical_match"; // 
 
 $conn = new mysqli($host, $user, $pass, $dbname);
 

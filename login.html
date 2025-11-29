@@ -1,13 +1,15 @@
+<!--login.html-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Login - Tropical Match</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css?v=3">
 </head>
 <body>
   <header class="game-header">
-    <h1>TROPICAL MATCH</h1>
+    <h1>🌴 TROPICAL MATCH 🌴</h1>
   </header>
 
   <div class="container form-container">
@@ -44,7 +46,7 @@
         const data = await response.json();
 
         if (data.success) {
-          // ✅ Redirect to dashboard after successful login
+          //  Redirect to dashboard after successful login
           window.location.href = "dashboard.html";
         } else {
           message.textContent = data.message || "Invalid login credentials.";

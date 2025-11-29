@@ -1,23 +1,43 @@
-<!--profile html-->
+<!--profile.html-->
 
 <!DOCTYPE html>
 <html lang="en">
-    <header class="game-header">
-        <h1>TROPICAL MATCH</h1>
-    </header>
 <head>
   <meta charset="UTF-8">
   <title>Profile - Tropical Match</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css?v=3">
 </head>
-<body class="page-center">
-  <div class="card">
-    <h2>Profile</h2>
-    <p><strong>Name</strong><br>Javindu Gunasekara</p>
-    <p><strong>Email</strong><br>javindu@example.com</p>
-    <a class="btn" href="index.html">Back</a>
+<body>
+  <header class="game-header">
+    <h1>🌴 TROPICAL MATCH 🌴</h1>
+  </header>
+
+  <div class="container profile-container">
+    <h1 class="title">Profile</h1>
+    <div class="profile-box">
+      <p><strong>Name:</strong> <span id="userName">Loading...</span></p>
+      <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
+    </div>
+    <a href="index.html" class="btn secondary">Back</a>
   </div>
+
+  <script>
+    // Fetch user data from API
+    fetch("api/get_user.php")
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById("userName").textContent = data.user.name;
+          document.getElementById("userEmail").textContent = data.user.email;
+        } else {
+          document.getElementById("userName").textContent = "Not logged in";
+          document.getElementById("userEmail").textContent = "-";
+        }
+      })
+      .catch(() => {
+        document.getElementById("userName").textContent = "Error loading data";
+        document.getElementById("userEmail").textContent = "-";
+      });
+  </script>
 </body>
 </html>
-
-

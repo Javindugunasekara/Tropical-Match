@@ -1,52 +1,371 @@
-/* Flip Card Styles */
-.card {
+/* ===========================
+   Tropical Match – Global Styles
+   =========================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Background + layout */
+body {
+  min-height: 100vh;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)),
+    url("../img/banana_bg.png");
+  display: flex;
+    background-repeat: no-repeat;
+      background-size: cover;
+  background-position: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  color: #333;
+}
+
+
+/* Top game header bar on every page */
+.game-header {
+  width: 100%;
+  background: linear-gradient(90deg, #e1ddc7, #e1ddc7); /* deep + bright green */
+  color: #903c0b;
+  text-align: center;
+  padding: 14px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 300%;
+  filter: brightness(0.8) opacity(0.8);
+}
+
+.game-header h1 {
+  font-size: 2rem;
+
+}
+
+/* Generic white card container used on all screens */
+.container {
+  background: rgba(255, 255, 255, 0.2); /* 0.8 = 80% visible */
+  padding: 24px 28px;
+  border-radius: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 420px;
+  width: 90%;
+  margin: 100px auto 24px;
+}
+
+
+/* Larger container for game board */
+.game-container {
+  max-width: 640px;
+}
+
+/* Auth / profile / summary containers just reuse basic container */
+.form-container,
+.auth-container,
+.profile-container,
+.summary-container {
+  max-width: 420px;
+}
+
+/* Home pages sit a bit lower */
+.home-page .container {
+  margin-top: 70px;
+}
+
+/* Titles */
+.title {
+  font-size: 1.8rem;
+  color: #da2518; /* tropical deep green */
+  margin-bottom: 20px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Smaller titles inside cards */
+.card .title {
+  font-size: 1.4rem;
+}
+
+/* Generic buttons */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+}
+
+.btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.primary {
+  background: #da2518; /* minty green */
+  color: #fff;
+}
+
+.secondary {
+  background: #da2518; /* tropical orange */
+  color: #fff;
+}
+
+.link {
+  color: #da2518;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.note {
+  margin-top: 12px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* ===========================
+   Forms (login / signup)
+   =========================== */
+
+input,
+select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin: 10px 0;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus,
+select:focus {
+  border-color: #da2518;
+  box-shadow: 0 0 0 2px rgba(32, 201, 151, 0.25);
+}
+
+/* Signup card */
+.auth-container .card {
+  background: rgba(255, 255, 255, 0.2); /* 0.8 = 80% visible */
+  border-radius: 18px;
+  padding: 20px;
+}
+
+.small-text {
+  font-size: 0.85rem;
+  margin-top: 10px;
+  color: #da2518;
+}
+
+/* ===========================
+   Dashboard / Profile / Summary
+   =========================== */
+
+.profile-box,
+.summary-box {
+  background: #f8fff9;
+  padding: 15px 18px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  text-align: left;
+  border: 1px solid #b2f2bb;
+}
+
+.summary-box p {
+  margin: 6px 0;
+  font-size: 0.95rem;
+}
+
+/* ===========================
+   Game controls & board
+   =========================== */
+
+.game-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.game-controls label {
+  font-weight: 600;
+  color: #da2518;
+}
+
+/* Timer + result text */
+#timer {
+  margin-top: 4px;
+  font-weight: 700;
+  color: #e85d04; /* warm orange */
+}
+
+.result {
+  margin-top: 10px;
+  font-weight: 600;
+  color: #1b7764;
+}
+
+/* Memory board – grid of cards */
+.board {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(70px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* Generic card tile style (board only) */
+.board .card {
+  background: #f5fff8;
+  border-radius: 12px;
+  height: 90px;
+  cursor: pointer;
+  border: 2px solid #b2f2bb;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
   perspective: 1000px;
 }
 
+.board .card:hover {
+  background: #d3f9d8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(32, 201, 151, 0.3);
+}
+
+/* Flip animation pieces */
 .card-inner {
-  position: relative;
   width: 100%;
-  padding-top: 100%; /* square aspect ratio */
+  height: 100%;
+  position: relative;
   transform-style: preserve-3d;
   transition: transform 0.6s;
-  cursor: pointer;
 }
 
 .card.flip .card-inner {
   transform: rotateY(180deg);
 }
 
-.card-front, .card-back {
+.card-front,
+.card-back {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 10px;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  backface-visibility: hidden;
+  border-radius: 10px;
 }
 
 .card-front {
-  background: #f5fff8;
-  border: 2px solid #b2f2bb;
+  font-size: 1.6rem;
+  background: #da2518;
+  color: #fff;
 }
 
 .card-back {
   transform: rotateY(180deg);
   background: #ffffff;
-  border: 2px solid #b2f2bb;
 }
 
 .card-back img {
-  width: 80%;
-  height: 80%;
-  object-fit: contain;
-  border-radius: 5px;
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 10px;
 }
 
+/* ===========================
+   Game dashboard (banana puzzle)
+   =========================== */
 
+.answer-section {
+  text-align: center;
+  margin-top: 25px;
+}
 
+.answer-box {
+  width: 280px;
+  max-width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid #ff9800;
+  font-size: 1rem;
+  text-align: center;
+  outline: none;
+}
+
+.answer-box:focus {
+  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.25);
+}
+
+/* Refresh button styled to match other buttons */
+.btn-refresh {
+  margin-top: 15px;
+  background: #f44336;
+  color: #fff;
+  border-radius: 20px;
+  border: none;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 3px 10px rgba(244, 67, 54, 0.4);
+}
+
+.btn-refresh:hover {
+  background: #d32f2f;
+  transform: scale(1.05);
+  box-shadow: 0 5px 14px rgba(244, 67, 54, 0.6);
+}
+
+/* Center footer with Back button + result */
+.game-footer {
+  text-align: center;
+  margin-top: 25px;
+}
+
+/* Banana puzzle image inside board */
+#board img {
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  max-width: 350px;
+  width: 100%;
+  margin: 20px auto;
+  display: block;
+}
+
+/* ===========================
+   Responsive tweaks
+   =========================== */
+
+@media (max-width: 500px) {
+  .container {
+    padding: 20px;
+  }
+
+  .board {
+    grid-template-columns: repeat(3, minmax(70px, 1fr));
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+}

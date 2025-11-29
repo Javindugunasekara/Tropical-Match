@@ -1,5 +1,5 @@
 <?php
-// Include the db_connect.php from the api folder
+// I
 $path = __DIR__ . '/api/db_connect.php';
 if (!file_exists($path)) {
     die("❌ db_connect.php not found in folder: " . $path);

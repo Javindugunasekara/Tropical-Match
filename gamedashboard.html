@@ -1,33 +1,75 @@
+<!--gamedashboard.html-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Tropical Match - Game Dashboard</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css?v=3">
   <style>
-    .board {
-      display: grid;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .cell {
-      background-color: #ffeb3b;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      cursor: pointer;
-      height: 60px;
-      user-select: none;
-      transition: background 0.3s;
-    }
-    .cell.clicked {
-      background-color: #4caf50;
-      color: white;
-    }
-  </style>
+  .board {
+    /* Center the puzzle image */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+  }
+
+  .answer-section {
+    text-align: center;
+    margin-top: 25px;
+  }
+
+  .answer-box {
+    width: 280px;
+    max-width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 2px solid #ff9800;
+    font-size: 1rem;
+    text-align: center;
+    outline: none;
+  }
+
+  .answer-box:focus {
+    box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.25);
+  }
+
+  .btn-refresh {
+    margin-top: 15px;
+    background: #f44336;
+    color: #fff;
+    border-radius: 20px;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 3px 10px rgba(244, 67, 54, 0.4);
+  }
+
+  .btn-refresh:hover {
+    background: #d32f2f;
+    transform: scale(1.05);
+  }
+
+  .game-footer {
+    text-align: center;
+    margin-top: 25px;
+  }
+
+  /* Make the puzzle image large */
+  #board img {
+    max-width: 350px;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+</style>
+
 </head>
+
 <body>
   <header class="game-header">
     <h1>TROPICAL MATCH - Dashboard</h1>
@@ -37,53 +79,14 @@
     <h1 class="title">🌴 Game Board 🌴</h1>
     <div id="gameData">Loading game...</div>
     <div id="board" class="board"></div>
-    <div class="game-footer">
-      <a href="dashboard.html" class="btn secondary" id="back">Back</a>
-      <div id="result" class="result"></div>
+
+    <!--  New Answer & Refresh Section -->
+    <div class="answer-section">
+      <input type="text" id="answerBox" class="answer-box" placeholder="Enter your answer here...">
+      <br>
+      <button id="refreshBtn" class="btn-refresh">🔄 Refresh</button>
     </div>
-  </div>
 
-  <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const backBtn = document.getElementById('back');
-  backBtn.addEventListener('click', () => {
-    window.location.href = 'dashboard.html';
-  });
-
-  const startGame = localStorage.getItem('startGame');
-  const board = document.getElementById('board');
-  const gameDataDiv = document.getElementById('gameData');
-
-  if (startGame === 'true') {
-    const data = JSON.parse(localStorage.getItem('bananaGameData'));
-    localStorage.removeItem('startGame');
-
-    if (!data || !data.question) {
-      gameDataDiv.innerText = 'No game data found.';
-      return;
-    }
-
-    // Display the image from API
-    const img = document.createElement('img');
-    img.src = data.question;
-    img.alt = 'Banana Puzzle';
-    img.style.maxWidth = '300px';
-    img.style.display = 'block';
-    img.style.margin = '20px auto';
-    board.appendChild(img);
-
-    // Display question text
-    const info = document.createElement('p');
-    info.innerText = 'Solve the puzzle or match the pattern!';
-    info.style.textAlign = 'center';
-    board.appendChild(info);
-
-    gameDataDiv.innerText = 'Game loaded successfully!';
-  } else {
-    gameDataDiv.innerText = 'Click "Start Game" to begin.';
-  }
-});
-</script>
-
+<script src="assets/js/app.js"></script>
 </body>
 </html>

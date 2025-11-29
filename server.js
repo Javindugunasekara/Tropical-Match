@@ -11,7 +11,7 @@ const PORT = 3000;
 
 
 
-// Allow your frontend to access the server
+// frontend access the server
 app.use(cors());
 
 // Serve frontend files

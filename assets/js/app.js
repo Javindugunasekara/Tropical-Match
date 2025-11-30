@@ -1,7 +1,7 @@
 // assets/js/app.js
 
-// Change this if you want to use your Node proxy:
-// const BANANA_API_URL = 'http://localhost:3000/banana';
+// Banana API: returns { question: <image URL>, solution: <number>, ... }
+// See: https://marcconrad.com/uob/banana/doc.php
 const BANANA_API_URL = 'https://marcconrad.com/uob/banana/api.php';
 
 const STORAGE_KEYS = {
@@ -10,7 +10,7 @@ const STORAGE_KEYS = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-  const page = window.location.pathname.split('/').pop();
+  const page = window.location.pathname.split('/').pop().toLowerCase();
 
   if (page === 'game.html') {
     initGameStartPage();
@@ -97,7 +97,10 @@ function initGameStartPage() {
   startBtn.addEventListener('click', async () => {
     const level = levelSelect.value || 'easy';
     startBtn.disabled = true;
-    if (resultEl) resultEl.textContent = 'Loading puzzle...';
+    if (resultEl) {
+      resultEl.textContent = 'Loading puzzle...';
+      resultEl.style.color = '#333';
+    }
 
     try {
       const res = await fetch(BANANA_API_URL);
@@ -105,21 +108,23 @@ function initGameStartPage() {
 
       const apiData = await res.json();
 
+      // Store everything we need for the game dashboard
       const gameData = {
-        question: apiData.question,
-        solution: parseInt(apiData.solution, 10),
+        question: apiData.question,               // image URL
+        solution: parseInt(apiData.solution, 10), // numeric answer
         level,
         startedAt: Date.now()
       };
 
       localStorage.setItem(STORAGE_KEYS.CURRENT_GAME, JSON.stringify(gameData));
 
-      // go to puzzle page
+      // Go to puzzle page
       window.location.href = 'gamedashboard.html';
     } catch (err) {
       console.error(err);
       if (resultEl) {
         resultEl.textContent = 'Failed to start game. Please try again.';
+        resultEl.style.color = '#f44336';
       }
     } finally {
       startBtn.disabled = false;
@@ -130,12 +135,13 @@ function initGameStartPage() {
 /* =========== PAGE: gamedashboard.html (puzzle page) =========== */
 
 function initGameDashboardPage() {
-  const backBtn = document.getElementById('back');
+  const backBtn    = document.getElementById('back');
   const refreshBtn = document.getElementById('refreshBtn');
-  const board = document.getElementById('board');
+  const submitBtn  = document.getElementById('submitAnswer');
+  const board      = document.getElementById('board');
   const gameDataDiv = document.getElementById('gameData');
-  const answerBox = document.getElementById('answerBox');
-  const resultEl = document.getElementById('result');
+  const answerBox  = document.getElementById('answerBox');
+  const resultEl   = document.getElementById('result');
 
   // Back → dashboard
   if (backBtn) {
@@ -153,7 +159,7 @@ function initGameDashboardPage() {
     });
   }
 
-  // Load current game
+  // Load current game from localStorage
   const raw = localStorage.getItem(STORAGE_KEYS.CURRENT_GAME);
   if (!raw) {
     if (gameDataDiv) {
@@ -174,11 +180,11 @@ function initGameDashboardPage() {
     return;
   }
 
-  // Show puzzle image
+  // Show puzzle image (question)
   if (board && gameData.question) {
     board.innerHTML = '';
     const img = document.createElement('img');
-    img.src = gameData.question;
+    img.src = gameData.question;   // image URL from API
     img.alt = 'Banana Puzzle';
     img.style.maxWidth = '350px';
     img.style.display = 'block';
@@ -190,7 +196,7 @@ function initGameDashboardPage() {
     gameDataDiv.textContent = 'Enter the missing number in the box below.';
   }
 
-  // Live timer
+  // ----- Timer -----
   const timerEl = document.createElement('div');
   timerEl.style.marginTop = '8px';
   if (gameDataDiv) gameDataDiv.appendChild(timerEl);
@@ -211,33 +217,59 @@ function initGameDashboardPage() {
     if (resultEl) {
       if (correct) {
         resultEl.textContent = `✅ Correct! You scored ${score} points in ${timeTaken}s`;
+        resultEl.style.color = '#4caf50';
       } else {
         resultEl.textContent = `❌ Incorrect. The correct answer was ${gameData.solution}.`;
+        resultEl.style.color = '#f44336';
       }
     }
 
-    // small delay, then go to summary
-    setTimeout(() => {
-      window.location.href = 'summary.html';
-    }, 2000);
+    // (Optional) If you want to auto-go to summary after feedback, uncomment:
+    // setTimeout(() => {
+    //   window.location.href = 'summary.html';
+    // }, 2000);
   }
 
-  // Answer input: press Enter to submit
+  // Shared handler for both Enter key and Submit button
+  function handleAnswerSubmit() {
+    if (!answerBox) return;
+
+    const value = answerBox.value.trim();
+    if (!value) {
+      if (resultEl) {
+        resultEl.textContent = 'Please enter your answer.';
+        resultEl.style.color = '#f44336';
+      }
+      return;
+    }
+
+    const userAnswer = parseInt(value, 10);
+    if (Number.isNaN(userAnswer)) {
+      if (resultEl) {
+        resultEl.textContent = 'Please enter a valid number.';
+        resultEl.style.color = '#f44336';
+      }
+      return;
+    }
+
+    const correct = userAnswer === Number(gameData.solution);
+    finishGame(correct);
+  }
+
+  // Enter key inside input
   if (answerBox) {
     answerBox.addEventListener('keyup', (event) => {
-      if (event.key !== 'Enter') return;
-
-      const value = answerBox.value.trim();
-      if (!value) return;
-
-      const userAnswer = parseInt(value, 10);
-      if (Number.isNaN(userAnswer)) {
-        if (resultEl) resultEl.textContent = 'Please enter a valid number.';
-        return;
+      if (event.key === 'Enter') {
+        handleAnswerSubmit();
       }
+    });
+  }
 
-      const correct = userAnswer === Number(gameData.solution);
-      finishGame(correct);
+  // Submit button click
+  if (submitBtn) {
+    submitBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      handleAnswerSubmit();
     });
   }
 }

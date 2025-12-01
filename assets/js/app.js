@@ -1,7 +1,6 @@
 // assets/js/app.js
 
-// Banana API: returns { question: <image URL>, solution: <number>, ... }
-// See: https://marcconrad.com/uob/banana/doc.php
+// Banana puzzle API
 const BANANA_API_URL = 'https://marcconrad.com/uob/banana/api.php';
 
 const STORAGE_KEYS = {
@@ -21,9 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/* =========== HELPERS FOR STATS =========== */
+/* =========== LOCAL STATS HELPERS (fallback if not logged in) =========== */
 
-function getStats() {
+function getLocalStats() {
   const raw = localStorage.getItem(STORAGE_KEYS.STATS);
   if (!raw) {
     return {
@@ -47,7 +46,7 @@ function getStats() {
       parsed
     );
   } catch (e) {
-    console.error('Error parsing stats from localStorage', e);
+    console.error('Error parsing local stats', e);
     return {
       gamesPlayed: 0,
       gamesWon: 0,
@@ -58,31 +57,51 @@ function getStats() {
   }
 }
 
-function saveStats(stats) {
+function saveLocalStats(stats) {
   localStorage.setItem(STORAGE_KEYS.STATS, JSON.stringify(stats));
 }
 
-function updateStats({ correct, timeTaken, score }) {
-  const stats = getStats();
+function updateLocalStats({ correct, timeTaken, score }) {
+  const stats = getLocalStats();
   stats.gamesPlayed += 1;
   if (correct) stats.gamesWon += 1;
 
-  if (stats.bestTime === null || timeTaken < stats.bestTime) {
-    stats.bestTime = timeTaken;
+  if (correct) {
+    if (stats.bestTime === null || timeTaken < stats.bestTime) {
+      stats.bestTime = timeTaken;
+    }
   }
 
   stats.lastScore = score;
   stats.lastTime = timeTaken;
-
-  saveStats(stats);
+  saveLocalStats(stats);
 }
 
 function calculateScore(level, timeTaken, correct) {
   if (!correct) return 0;
-
   const base = level === 'hard' ? 30 : 20;
-  const timeBonus = Math.max(0, 20 - timeTaken); // more points if faster
+  const timeBonus = Math.max(0, 20 - timeTaken);
   return base + timeBonus;
+}
+
+/* =========== SERVER STATS HELPER (your update_game_stats.php) =========== */
+
+function syncStatsToServer({ correct, timeTaken, score }) {
+  const token = localStorage.getItem('userToken');
+  if (!token) return; // not logged in, skip
+
+  fetch('api/update_game_stats.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, correct, timeTaken, score })
+  })
+    .then(res => res.json())
+    .then(data => {
+      console.log('update_game_stats response:', data);
+    })
+    .catch(err => {
+      console.error('Error calling update_game_stats.php:', err);
+    });
 }
 
 /* =========== PAGE: game.html (start page) =========== */
@@ -108,17 +127,15 @@ function initGameStartPage() {
 
       const apiData = await res.json();
 
-      // Store everything we need for the game dashboard
       const gameData = {
-        question: apiData.question,               // image URL
-        solution: parseInt(apiData.solution, 10), // numeric answer
+        question: apiData.question,
+        solution: parseInt(apiData.solution, 10),
         level,
         startedAt: Date.now()
       };
 
       localStorage.setItem(STORAGE_KEYS.CURRENT_GAME, JSON.stringify(gameData));
 
-      // Go to puzzle page
       window.location.href = 'gamedashboard.html';
     } catch (err) {
       console.error(err);
@@ -135,13 +152,13 @@ function initGameStartPage() {
 /* =========== PAGE: gamedashboard.html (puzzle page) =========== */
 
 function initGameDashboardPage() {
-  const backBtn    = document.getElementById('back');
-  const refreshBtn = document.getElementById('refreshBtn');
-  const submitBtn  = document.getElementById('submitAnswer');
-  const board      = document.getElementById('board');
+  const backBtn     = document.getElementById('back');
+  const refreshBtn  = document.getElementById('refreshBtn');
+  const submitBtn   = document.getElementById('submitAnswerBtn');
+  const board       = document.getElementById('board');
   const gameDataDiv = document.getElementById('gameData');
-  const answerBox  = document.getElementById('answerBox');
-  const resultEl   = document.getElementById('result');
+  const answerBox   = document.getElementById('answerBox');
+  const resultEl    = document.getElementById('result');
 
   // Back → dashboard
   if (backBtn) {
@@ -151,7 +168,7 @@ function initGameDashboardPage() {
     });
   }
 
-  // Refresh → start a completely new game from game.html
+  // Refresh → new game from game.html
   if (refreshBtn) {
     refreshBtn.addEventListener('click', () => {
       localStorage.removeItem(STORAGE_KEYS.CURRENT_GAME);
@@ -159,13 +176,14 @@ function initGameDashboardPage() {
     });
   }
 
-  // Load current game from localStorage
+  // Load game data from localStorage
   const raw = localStorage.getItem(STORAGE_KEYS.CURRENT_GAME);
   if (!raw) {
     if (gameDataDiv) {
       gameDataDiv.textContent = 'No game data. Go back and press "Start Game".';
     }
     if (answerBox) answerBox.disabled = true;
+    if (submitBtn) submitBtn.disabled = true;
     return;
   }
 
@@ -180,11 +198,11 @@ function initGameDashboardPage() {
     return;
   }
 
-  // Show puzzle image (question)
+  // Show puzzle image
   if (board && gameData.question) {
     board.innerHTML = '';
     const img = document.createElement('img');
-    img.src = gameData.question;   // image URL from API
+    img.src = gameData.question;
     img.alt = 'Banana Puzzle';
     img.style.maxWidth = '350px';
     img.style.display = 'block';
@@ -196,8 +214,9 @@ function initGameDashboardPage() {
     gameDataDiv.textContent = 'Enter the missing number in the box below.';
   }
 
-  // ----- Timer -----
+  // Timer
   const timerEl = document.createElement('div');
+  timerEl.id = 'timer';
   timerEl.style.marginTop = '8px';
   if (gameDataDiv) gameDataDiv.appendChild(timerEl);
 
@@ -210,9 +229,14 @@ function initGameDashboardPage() {
   function finishGame(correct) {
     clearInterval(timerId);
     const timeTaken = Math.round((Date.now() - startTime) / 1000);
-    const score = calculateScore(gameData.level || 'easy', timeTaken, correct);
+    const level = gameData.level || 'easy';
+    const score = calculateScore(level, timeTaken, correct);
 
-    updateStats({ correct, timeTaken, score });
+    // local stats (for guests / backup)
+    updateLocalStats({ correct, timeTaken, score });
+
+    // server stats for logged-in user
+    syncStatsToServer({ correct, timeTaken, score });
 
     if (resultEl) {
       if (correct) {
@@ -224,13 +248,14 @@ function initGameDashboardPage() {
       }
     }
 
-    // (Optional) If you want to auto-go to summary after feedback, uncomment:
-    // setTimeout(() => {
-    //   window.location.href = 'summary.html';
-    // }, 2000);
+    if (answerBox) answerBox.disabled = true;
+    if (submitBtn) submitBtn.disabled = true;
+
+    setTimeout(() => {
+      window.location.href = 'summary.html';
+    }, 2500);
   }
 
-  // Shared handler for both Enter key and Submit button
   function handleAnswerSubmit() {
     if (!answerBox) return;
 
@@ -256,20 +281,18 @@ function initGameDashboardPage() {
     finishGame(correct);
   }
 
-  // Enter key inside input
-  if (answerBox) {
-    answerBox.addEventListener('keyup', (event) => {
-      if (event.key === 'Enter') {
-        handleAnswerSubmit();
-      }
-    });
-  }
-
-  // Submit button click
   if (submitBtn) {
     submitBtn.addEventListener('click', (e) => {
       e.preventDefault();
       handleAnswerSubmit();
+    });
+  }
+
+  if (answerBox) {
+    answerBox.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') {
+        handleAnswerSubmit();
+      }
     });
   }
 }
@@ -277,18 +300,56 @@ function initGameDashboardPage() {
 /* =========== PAGE: summary.html (stats page) =========== */
 
 function initSummaryPage() {
-  const stats = getStats();
-
-  const scoreEl = document.getElementById('score');
+  const scoreEl    = document.getElementById('score');
   const bestTimeEl = document.getElementById('bestTime');
-  const playedEl = document.getElementById('playedTimes');
-  const wonEl = document.getElementById('gamesWon');
+  const playedEl   = document.getElementById('playedTimes');
+  const wonEl      = document.getElementById('gamesWon');
 
-  if (scoreEl) scoreEl.textContent = stats.lastScore ?? 0;
-  if (bestTimeEl) {
-    bestTimeEl.textContent =
-      stats.bestTime !== null ? `${stats.bestTime}s` : '-';
+  function renderStats(stats) {
+    if (scoreEl)    scoreEl.textContent    = stats.lastScore ?? 0;
+    if (bestTimeEl) bestTimeEl.textContent =
+      stats.bestTime === null || stats.bestTime === 0
+        ? '-'
+        : `${stats.bestTime}s`;
+    if (playedEl)   playedEl.textContent   = stats.gamesPlayed ?? 0;
+    if (wonEl)      wonEl.textContent      = stats.gamesWon ?? 0;
   }
-  if (playedEl) playedEl.textContent = stats.gamesPlayed ?? 0;
-  if (wonEl) wonEl.textContent = stats.gamesWon ?? 0;
+
+  const token = localStorage.getItem('userToken');
+
+  if (!token) {
+    // Guest → show local stats only
+    const localStats = getLocalStats();
+    renderStats(localStats);
+    return;
+  }
+
+  // Logged-in → get stats from your get_game_stats.php
+  fetch('api/get_game_stats.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token })
+  })
+    .then(res => res.json())
+    .then(data => {
+      console.log('get_game_stats response:', data);
+      if (data.success && data.stats) {
+        const s = data.stats;
+        const stats = {
+          gamesPlayed: s.games_played,
+          gamesWon: s.games_won,
+          bestTime: s.best_time === null ? null : s.best_time,
+          lastScore: s.last_score,
+          lastTime: s.last_time === null ? null : s.last_time
+        };
+        renderStats(stats);
+      } else {
+        // fallback to local
+        renderStats(getLocalStats());
+      }
+    })
+    .catch(err => {
+      console.error('Error calling get_game_stats.php:', err);
+      renderStats(getLocalStats());
+    });
 }

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tropical Match - OTP Verification</title>
+  <link rel="stylesheet" href="assets/css/style.css?v=2">
+</head>
+<body>
+  <header class="game-header">
+    <h1>🌴 TROPICAL MATCH - Verify OTP 🌴</h1>
+  </header>
+
+  <div class="container auth-container">
+    <h1 class="title">Enter OTP</h1>
+
+    <form id="otpForm">
+      <p class="note" id="otpInfo"></p>
+      <input type="text" id="otpInput" placeholder="6-digit OTP" required>
+      <button type="submit" class="btn primary">Verify OTP</button>
+      <p id="otpMessage" class="note"></p>
+    </form>
+
+    <a href="login.html" class="btn secondary">Back to Login</a>
+  </div>
+
+  <script src="assets/js/otp.js"></script>
+</body>
+</html>

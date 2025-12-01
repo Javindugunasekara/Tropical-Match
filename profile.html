@@ -1,11 +1,9 @@
-<!--profile.html-->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Profile - Tropical Match</title>
-<link rel="stylesheet" href="assets/css/style.css?v=2">
+  <link rel="stylesheet" href="assets/css/style.css?v=2">
 </head>
 <body>
   <header class="game-header">
@@ -22,22 +20,52 @@
   </div>
 
   <script>
-    // Fetch user data from API
-    fetch("api/get_user.php")
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          document.getElementById("userName").textContent = data.user.name;
-          document.getElementById("userEmail").textContent = data.user.email;
-        } else {
-          document.getElementById("userName").textContent = "Not logged in";
-          document.getElementById("userEmail").textContent = "-";
-        }
+    document.addEventListener('DOMContentLoaded', () => {
+      const nameEl  = document.getElementById('userName');
+      const emailEl = document.getElementById('userEmail');
+
+      const token = localStorage.getItem('userToken');
+
+      if (!token) {
+        nameEl.textContent  = 'Not logged in';
+        emailEl.textContent = '-';
+        return;
+      }
+
+      const body = new URLSearchParams();
+      body.append('token', token);
+
+      fetch('api/get_user.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: body.toString()
       })
-      .catch(() => {
-        document.getElementById("userName").textContent = "Error loading data";
-        document.getElementById("userEmail").textContent = "-";
-      });
+        .then(async (res) => {
+          if (!res.ok) {
+            const text = await res.text();
+            console.error('get_user HTTP error:', res.status, text);
+            throw new Error('HTTP ' + res.status);
+          }
+          return res.json();
+        })
+        .then((data) => {
+          console.log('get_user response:', data);
+          if (data.success && data.user) {
+            nameEl.textContent  = data.user.name || 'Unknown';
+            emailEl.textContent = data.user.email || '-';
+          } else {
+            nameEl.textContent  = 'Not logged in';
+            emailEl.textContent = '-';
+          }
+        })
+        .catch((err) => {
+          console.error('get_user fetch error:', err);
+          nameEl.textContent  = 'Error loading data';
+          emailEl.textContent = '-';
+        });
+    });
   </script>
 </body>
 </html>

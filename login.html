@@ -1,60 +1,26 @@
-<!--login.html-->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Login - Tropical Match</title>
-<link rel="stylesheet" href="assets/css/style.css?v=2">
+  <title>Tropical Match - Login</title>
+  <link rel="stylesheet" href="assets/css/style.css?v=3">
 </head>
 <body>
   <header class="game-header">
-    <h1>🌴 TROPICAL MATCH 🌴</h1>
+    <h1>TROPICAL MATCH - Login</h1>
   </header>
 
-  <div class="container form-container">
-    <h1 class="title">Welcome Back!</h1>
+  <div class="container auth-container">
+    <h2 class="title">Login</h2>
+
     <form id="loginForm">
-      <input type="email" id="email" placeholder="Enter your email" required>
-      <input type="password" id="password" placeholder="Enter your password" required>
+      <input type="text" name="email" placeholder="Email" required>
+      <input type="password" name="password" placeholder="Password" required>
       <button type="submit" class="btn primary">Login</button>
+      <p id="loginMessage" class="note"></p>
     </form>
-    <p class="note">Don’t have an account? <a href="signup.html" class="link">Sign Up</a></p>
-    <p id="message" style="color:red; margin-top:10px;"></p>
   </div>
 
-  <script>
-    document.getElementById("loginForm").addEventListener("submit", async function(e) {
-      e.preventDefault();
-
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const message = document.getElementById("message");
-
-      if (!email || !password) {
-        message.textContent = "Please fill in all fields.";
-        return;
-      }
-
-      try {
-        const response = await fetch("api/login.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          //  Redirect to dashboard after successful login
-          window.location.href = "dashboard.html";
-        } else {
-          message.textContent = data.message || "Invalid login credentials.";
-        }
-      } catch (error) {
-        message.textContent = "Server error. Please try again.";
-      }
-    });
-  </script>
+  <script src="assets/js/login.js"></script>
 </body>
 </html>

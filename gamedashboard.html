@@ -1,11 +1,13 @@
 <!--gamedashboard.html-->
 
+<!-- gamedashboard.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Tropical Match - Game Dashboard</title>
-<link rel="stylesheet" href="assets/css/style.css?v=2">
+  <link rel="stylesheet" href="assets/css/style.css?v=3">
   <style>
     .board {
       /* Center the puzzle image */
@@ -25,7 +27,7 @@
       max-width: 100%;
       padding: 12px;
       border-radius: 10px;
-      border: 2px solid #ff9800;
+      border: 2px solid #ff0400;
       font-size: 1rem;
       text-align: center;
       outline: none;
@@ -37,7 +39,7 @@
 
     .btn-refresh {
       margin-top: 15px;
-      background: #f44336;
+      background: #f61f0f;
       color: #fff;
       border-radius: 20px;
       border: none;
@@ -68,14 +70,14 @@
     }
   </style>
 </head>
-
 <body>
   <header class="game-header">
-    <h1>TROPICAL MATCH - Dashboard</h1>
+    <h1>🌴 TROPICAL MATCH - Dashboard 🌴</h1>
   </header>
 
-  <div class="container">
+  <div class="container game-container">
     <h1 class="title">🌴 Game Board 🌴</h1>
+
     <div id="gameData">Loading game...</div>
     <div id="board" class="board"></div>
 
@@ -85,12 +87,9 @@
         id="answerBox"
         class="answer-box"
         placeholder="Enter your answer here..."
-      >
+      />
       <br><br>
-      <!-- NEW: Submit button -->
-      <button id="submitAnswer" class="btn primary">Submit Answer</button>
-      <br>
-      <!-- Refresh still sends you back to game.html to get a fresh puzzle -->
+      <button id="submitAnswerBtn" class="btn primary">Submit</button>
       <button id="refreshBtn" class="btn-refresh">🔄 Refresh</button>
     </div>
 
@@ -103,3 +102,4 @@
   <script src="assets/js/app.js"></script>
 </body>
 </html>
+

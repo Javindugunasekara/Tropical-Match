@@ -1,28 +1,72 @@
 <?php
-header("Content-Type: application/json");
-require_once "db_connect.php";
-session_start();
+// api/get_user.php
+require "db_connect.php";
+header('Content-Type: application/json');
 
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(["success" => false, "message" => "User not logged in"]);
+// Read token from POST (JSON or form) or GET
+$token = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (is_array($input) && !empty($input['token'])) {
+        $token = trim($input['token']);
+    } elseif (!empty($_POST['token'])) {
+        $token = trim($_POST['token']);
+    }
+} elseif (!empty($_GET['token'])) {
+    $token = trim($_GET['token']);
+}
+
+if ($token === '') {
+    echo json_encode([
+        'success' => false,
+        'message' => 'No token provided'
+    ]);
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
-
-$sql = "SELECT name, email FROM users WHERE id = ?";
+$sql = "SELECT id, name, email, api_token_expires_at
+        FROM users
+        WHERE api_token = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $user_id);
+if (!$stmt) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'DB error: ' . $conn->error
+    ]);
+    exit;
+}
+
+$stmt->bind_param("s", $token);
 $stmt->execute();
 $result = $stmt->get_result();
 
-if ($result->num_rows > 0) {
-    $user = $result->fetch_assoc();
-    echo json_encode(["success" => true, "user" => $user]);
-} else {
-    echo json_encode(["success" => false, "message" => "User not found"]);
+if (!$user = $result->fetch_assoc()) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Invalid token'
+    ]);
+    exit;
 }
 
-$stmt->close();
-$conn->close();
-?>
+// Optional: check expiry
+if (!empty($user['api_token_expires_at'])) {
+    $now = new DateTime();
+    $exp = new DateTime($user['api_token_expires_at']);
+    if ($now > $exp) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Token expired'
+        ]);
+        exit;
+    }
+}
+
+echo json_encode([
+    'success' => true,
+    'user' => [
+        'id'    => $user['id'],
+        'name'  => $user['name'],
+        'email' => $user['email'],
+    ]
+]);

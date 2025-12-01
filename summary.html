@@ -1,29 +1,31 @@
-<!--summary.html-->
+<!-- summary.html -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Game Summary - Tropical Match</title>
-<link rel="stylesheet" href="assets/css/style.css?v=2">
+  <title>Tropical Match - Summary</title>
+  <link rel="stylesheet" href="assets/css/style.css?v=3">
 </head>
 <body>
   <header class="game-header">
-    <h1>🌴 TROPICAL MATCH 🌴</h1>
+    <h1>🌴 TROPICAL MATCH - Summary 🌴</h1>
   </header>
 
   <div class="container summary-container">
     <h1 class="title">Game Summary</h1>
+
     <div class="summary-box">
-      <p><strong>Score:</strong> <span id="score">0</span></p>
+      <p><strong>Last Score:</strong> <span id="score">0</span></p>
       <p><strong>Best Time:</strong> <span id="bestTime">-</span></p>
       <p><strong>Games Played:</strong> <span id="playedTimes">0</span></p>
       <p><strong>Games Won:</strong> <span id="gamesWon">0</span></p>
     </div>
-    <a href="dashboard.html" class="btn secondary">Back</a>
+
+    <a href="game.html" class="btn primary">Play Again</a>
+    <a href="dashboard.html" class="btn secondary">Back to Dashboard</a>
   </div>
 
-  <!-- NEW: shared game script -->
   <script src="assets/js/app.js"></script>
 </body>
 </html>

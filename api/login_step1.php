@@ -69,12 +69,12 @@ if (!$update) {
 $update->bind_param('ssi', $otp, $expiresAt, $user['id']);
 $update->execute();
 
-// TODO: send OTP via email in real app.
-// For now we return it as debug_otp so you can test.
+// send OTP via email in real app.
+
 
 echo json_encode([
     'success'   => true,
     'message'   => 'Password correct. OTP sent.',
     'email'     => $user['email'],
-    'debug_otp' => $otp  // ⚠️ remove later in production
+    'debug_otp' => $otp  // 
 ]);

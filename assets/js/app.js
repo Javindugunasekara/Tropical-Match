@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/* =========== LOCAL STATS HELPERS (fallback if not logged in) =========== */
+/* LOCAL STATS HELPERS (fallback if not logged in)*/
 
 function getLocalStats() {
   const raw = localStorage.getItem(STORAGE_KEYS.STATS);
@@ -84,7 +84,7 @@ function calculateScore(level, timeTaken, correct) {
   return base + timeBonus;
 }
 
-/* =========== SERVER STATS HELPER (your update_game_stats.php) =========== */
+/* update_game_stats.php*/
 
 function syncStatsToServer({ correct, timeTaken, score }) {
   const token = localStorage.getItem('userToken');
@@ -104,7 +104,7 @@ function syncStatsToServer({ correct, timeTaken, score }) {
     });
 }
 
-/* =========== PAGE: game.html (start page) =========== */
+/*game.html (start page)*/
 
 function initGameStartPage() {
   const levelSelect = document.getElementById('level');
@@ -149,7 +149,7 @@ function initGameStartPage() {
   });
 }
 
-/* =========== PAGE: gamedashboard.html (puzzle page) =========== */
+/* gamedashboard.html (puzzle page)*/
 
 function initGameDashboardPage() {
   const backBtn     = document.getElementById('back');
@@ -168,7 +168,7 @@ function initGameDashboardPage() {
     });
   }
 
-  // Refresh → new game from game.html
+  // Refresh  new game from game.html
   if (refreshBtn) {
     refreshBtn.addEventListener('click', () => {
       localStorage.removeItem(STORAGE_KEYS.CURRENT_GAME);
@@ -232,7 +232,7 @@ function initGameDashboardPage() {
     const level = gameData.level || 'easy';
     const score = calculateScore(level, timeTaken, correct);
 
-    // local stats (for guests / backup)
+    // local stats 
     updateLocalStats({ correct, timeTaken, score });
 
     // server stats for logged-in user
@@ -297,7 +297,7 @@ function initGameDashboardPage() {
   }
 }
 
-/* =========== PAGE: summary.html (stats page) =========== */
+/*summary.html (stats page)*/
 
 function initSummaryPage() {
   const scoreEl    = document.getElementById('score');
@@ -318,13 +318,13 @@ function initSummaryPage() {
   const token = localStorage.getItem('userToken');
 
   if (!token) {
-    // Guest → show local stats only
+    // Guest  show local stats only
     const localStats = getLocalStats();
     renderStats(localStats);
     return;
   }
 
-  // Logged-in → get stats from your get_game_stats.php
+  // Logged-in  get stats from get_game_stats.php
   fetch('api/get_game_stats.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

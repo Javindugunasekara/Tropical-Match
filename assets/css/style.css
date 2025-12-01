@@ -1,6 +1,4 @@
-/* ===========================
-   Tropical Match – Global Styles
-   =========================== */
+/*Global Styles*/
 
 * {
   box-sizing: border-box;
@@ -29,7 +27,7 @@ body {
 /* Top game header bar on every page */
 .game-header {
   width: 100%;
-  background: linear-gradient(90deg, #e1ddc7, #e1ddc7); /* deep + bright green */
+  background: linear-gradient(90deg, #e1ddc7, #e1ddc7); 
   color: #903c0b;
   text-align: center;
   padding: 14px 16px;
@@ -46,7 +44,7 @@ body {
 
 }
 
-/* Generic white card container used on all screens */
+
 .container {
   background: rgba(255, 255, 255, 0.2); /* 0.8 = 80% visible */
   padding: 24px 28px;
@@ -64,7 +62,7 @@ body {
   max-width: 640px;
 }
 
-/* Auth / profile / summary containers just reuse basic container */
+/* Auth / profile / summary containers */
 .form-container,
 .auth-container,
 .profile-container,
@@ -72,7 +70,7 @@ body {
   max-width: 420px;
 }
 
-/* Home pages sit a bit lower */
+/* Home pages */
 .home-page .container {
   margin-top: 70px;
 }
@@ -80,12 +78,12 @@ body {
 /* Titles */
 .title {
   font-size: 1.8rem;
-  color: #da2518; /* tropical red  */
+  color: #da2518; 
   margin-bottom: 20px;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* Smaller titles inside cards */
+
 .card .title {
   font-size: 1.4rem;
 }
@@ -116,12 +114,12 @@ body {
 }
 
 .primary {
-  background: #da2518; /* minty green */
+  background: #da2518; 
   color: #fff;
 }
 
 .secondary {
-  background: #da2518; /* tropical orange */
+  background: #da2518; 
   color: #fff;
 }
 
@@ -141,9 +139,7 @@ body {
   font-size: 0.9rem;
 }
 
-/* ===========================
-   Forms (login / signup)
-   =========================== */
+/* Forms (login / signup) */
 
 input,
 select {
@@ -165,7 +161,7 @@ select:focus {
 
 /* Signup card */
 .auth-container .card {
-  background: rgba(255, 255, 255, 0.2); /* 0.8 = 80% visible */
+  background: rgba(255, 255, 255, 0.2); 
   border-radius: 18px;
   padding: 20px;
 }
@@ -176,9 +172,7 @@ select:focus {
   color: #da2518;
 }
 
-/* ===========================
-   Dashboard / Profile / Summary
-   =========================== */
+/*Dashboard / Profile / Summary*/
 
 .profile-box,
 .summary-box {
@@ -195,9 +189,7 @@ select:focus {
   font-size: 0.95rem;
 }
 
-/* ===========================
-   Game controls & board
-   =========================== */
+/* Game controls & board*/
 
 .game-controls {
   display: flex;
@@ -217,7 +209,7 @@ select:focus {
 #timer {
   margin-top: 4px;
   font-weight: 700;
-  color: #e85d04; /* warm orange */
+  color: #e85d04; 
 }
 
 .result {
@@ -292,9 +284,7 @@ select:focus {
   border-radius: 10px;
 }
 
-/* ===========================
-   Game dashboard (banana puzzle)
-   =========================== */
+/* Game dashboard (banana puzzle)*/
 
 .answer-section {
   text-align: center;
@@ -352,9 +342,7 @@ select:focus {
   display: block;
 }
 
-/* ===========================
-   Responsive tweaks
-   =========================== */
+/*Responsive tweaks*/
 
 @media (max-width: 500px) {
   .container {
@@ -370,3 +358,5 @@ select:focus {
   }
 }
 
+
+/* Some parts of this style were developed with help from (OpenAI).*/

@@ -18,7 +18,7 @@ if ($token === '') {
     exit;
 }
 
-// 1) Find user by token (and check expiry like get_user.php)
+// Find user by token (and check expiry like get_user.php)
 $sql = "SELECT id, api_token_expires_at
         FROM users
         WHERE api_token = ?";
@@ -58,7 +58,7 @@ if (!empty($user['api_token_expires_at'])) {
 
 $userId = (int)$user['id'];
 
-// 2) Read existing stats row
+// Read existing stats row
 $check = $conn->prepare("
     SELECT id, games_played, games_won, best_time
     FROM user_game_stats
@@ -119,7 +119,7 @@ if ($row = $statsResult->fetch_assoc()) {
     $insert->execute();
 }
 
-// 3) Return updated stats
+// Return updated stats
 echo json_encode([
     'success' => true,
     'stats' => [
